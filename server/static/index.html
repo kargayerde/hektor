@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>hektor</title>
+		<link
+			href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			:root {
+				--bg: #181818;
+				--fg: #00ff00;
+				--accent: #00ff00;
+				--accent-dim: #008800;
+				--font: "IBM Plex Mono", monospace;
+				--border: #00ff00;
+				--border-style: dashed;
+				--border-width: 2px;
+				--relay-bg: #111;
+				--relay-shadow: 0 0 8px #00ff0044;
+				--relay-gap: 1rem;
+				--relay-radius: 0;
+				--relay-padding: 1rem;
+				--relay-title-size: 1rem;
+				--relay-title-bg: transparent;
+				--relay-title-fg: var(--fg);
+				--relay-title-edit-bg: #222;
+				--relay-title-edit-fg: var(--fg);
+				--relay-title-edit-border: var(--border);
+				--relay-title-edit-radius: 0;
+				--relay-title-edit-padding: 0.2rem 0.4rem;
+				--relay-label-fg: #aaa;
+				--relay-label-size: 0.9rem;
+				--button-bg: #222;
+				--button-fg: var(--fg);
+				--button-border: var(--border);
+				--button-radius: 0;
+				--button-padding: 0.4rem 1rem;
+				--button-font-size: 1rem;
+				--button-off-bg: #222;
+				--button-off-fg: #ff2222;
+				--button-on-bg: #00ff00; /* changed to green */
+				--button-on-fg: #fff; /* changed to white */
+				--button-hover-bg: #333;
+				--button-hover-fg: var(--accent);
+				--button-active-bg: var(--accent-dim);
+				--button-active-fg: #fff;
+				--transition-fast: 0.15s;
+				--transition-slow: 0.4s;
+				--ascii-sep: "────────────────────────────";
+			}
+
+			body {
+				background: var(--bg);
+				color: var(--fg);
+				font-family: var(--font);
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: flex-start;
+				min-height: 100vh;
+				margin: 0;
+				padding: 2rem;
+			}
+
+			h1 {
+				color: var(--fg);
+				letter-spacing: 2px;
+				border-bottom: var(--border-width) var(--border-style) var(--border);
+				padding-bottom: 0.5rem;
+				margin-bottom: 2rem;
+				font-family: var(--font);
+				font-size: 2rem;
+			}
+
+			#relays {
+				display: grid;
+				grid-template-columns: repeat(
+					auto-fit,
+					minmax(290px, 1fr)
+				); /* increased min width */
+				gap: var(--relay-gap);
+				width: 100%;
+				max-width: 1000px; /* allow more room for wider boxes */
+			}
+
+			.relay {
+				background: var(--relay-bg);
+				border: var(--border-width) var(--border-style) var(--border);
+				padding: var(--relay-padding);
+				border-radius: var(--relay-radius);
+				text-align: left;
+				font-family: var(--font);
+				box-shadow: var(--relay-shadow);
+				/* position: relative; */
+				transition: box-shadow var(--transition-slow);
+			}
+
+			.relay:hover {
+				box-shadow: 0 0 16px #00ff00aa;
+			}
+
+			.relay-contents {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				/* width: 320px; */
+				/* min-width: 290px; */
+			}
+
+			.relay-ascii-top,
+			.relay-ascii-bottom {
+				font-family: var(--font);
+				color: var(--border);
+				font-size: 0.8rem;
+				letter-spacing: 1px;
+				text-align: center;
+				margin-bottom: 0.3rem;
+				margin-top: 0.3rem;
+				user-select: none;
+			}
+
+			.relay-title-row {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				margin-bottom: 0.5rem;
+			}
+
+			.relay-title {
+				font-size: var(--relay-title-size);
+				color: var(--relay-title-fg);
+				background: var(--relay-title-bg);
+				border: none;
+				padding: 0;
+				cursor: pointer;
+				text-align: left;
+				transition: color var(--transition-fast);
+				font-family: var(--font);
+			}
+
+			.relay-title:focus,
+			.relay-title input:focus {
+				outline: var(--border-width) solid var(--accent);
+			}
+
+			input.relay-title {
+				background: var(--relay-title-edit-bg);
+				color: var(--relay-title-edit-fg);
+				border: var(--border-width) var(--border-style) var(--relay-title-edit-border);
+				font-family: var(--font);
+				font-size: var(--relay-title-size);
+				padding: var(--relay-title-edit-padding);
+				border-radius: var(--relay-title-edit-radius);
+				margin-bottom: 0.2rem;
+				text-align: left;
+				transition: border-color var(--transition-fast), background var(--transition-fast);
+			}
+
+			.relay-label {
+				font-size: var(--relay-label-size);
+				color: var(--relay-label-fg);
+				margin-left: 0.2rem;
+				margin-top: 0.1rem;
+				opacity: 0.85;
+				font-family: var(--font);
+				transition: opacity var(--transition-fast);
+				word-break: break-word;
+			}
+
+			button {
+				background: var(--button-bg);
+				color: var(--button-fg);
+				border: var(--border-width) var(--border-style) var(--button-border);
+				font-family: var(--font);
+				font-size: var(--button-font-size);
+				padding: var(--button-padding);
+				border-radius: var(--button-radius);
+				cursor: pointer;
+				transition: background var(--transition-fast), color var(--transition-fast),
+					box-shadow var(--transition-fast);
+				text-transform: uppercase;
+				margin-top: 0.5rem;
+				width: 100%;
+				box-shadow: 0 0 0 #00ff00;
+			}
+
+			button.off {
+				color: var(--button-off-fg);
+				background: var(--button-off-bg);
+				box-shadow: 0 0 8px #ff222244;
+				animation: btnOffAnim var(--transition-slow);
+			}
+
+			button.on {
+				color: var(--button-on-fg);
+				background: var(--button-on-bg);
+				box-shadow: 0 0 8px #00ff0044;
+				animation: btnOnAnim var(--transition-slow);
+			}
+
+			@keyframes btnOnAnim {
+				0% {
+					box-shadow: 0 0 0 #00ff00;
+				}
+				60% {
+					box-shadow: 0 0 16px #00ff00;
+				}
+				100% {
+					box-shadow: 0 0 8px #00ff0044;
+				}
+			}
+			@keyframes btnOffAnim {
+				0% {
+					box-shadow: 0 0 0 #ff2222;
+				}
+				60% {
+					box-shadow: 0 0 16px #ff2222;
+				}
+				100% {
+					box-shadow: 0 0 8px #ff222244;
+				}
+			}
+
+			button:hover {
+				background: var(--button-hover-bg);
+				color: var(--button-hover-fg);
+				border-color: var(--accent);
+			}
+
+			button:active {
+				background: var(--button-active-bg);
+				color: var(--button-active-fg);
+				border-color: var(--accent-dim);
+			}
+
+			.relay-circuit-indicator {
+				font-family: var(--font);
+				font-size: 1.2rem;
+				color: var(--border);
+				text-align: center;
+				margin: 0.5rem 0 0.2rem 0;
+				user-select: none;
+				letter-spacing: 2px;
+			}
+
+			/* footer hotkeys box: same visual style as a relay but smaller */
+			.footer-box {
+				background: var(--relay-bg);
+				border: var(--border-width) var(--border-style) var(--border);
+				padding: 0.6rem 1rem;
+				border-radius: var(--relay-radius);
+				text-align: center;
+				font-family: var(--font);
+				box-shadow: var(--relay-shadow);
+				margin-top: 1.5rem;
+				width: 100%;
+				max-width: 1000px;
+				color: var(--fg);
+				letter-spacing: 1px;
+				user-select: none;
+			}
+
+			/* Devices box (similar visual style to footer-box/relay) */
+			.devices-box {
+				background: var(--relay-bg);
+				border: var(--border-width) var(--border-style) var(--border);
+				padding: 0.6rem 1rem;
+				border-radius: var(--relay-radius);
+				text-align: left;
+				font-family: var(--font);
+				box-shadow: var(--relay-shadow);
+				margin-top: 1.5rem;
+				width: 100%;
+				max-width: 1000px;
+				color: var(--fg);
+				letter-spacing: 1px;
+				user-select: none;
+			}
+			.device-row {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 0.25rem 0;
+				border-bottom: 1px dashed #00ff0022;
+			}
+			.device-row:last-child {
+				border-bottom: none;
+			}
+			.device-name {
+				opacity: 0.9;
+			}
+			.device-state {
+				font-weight: bold;
+				padding: 0.1rem 0.5rem;
+				border: var(--border-width) var(--border-style) currentColor;
+				border-radius: var(--button-radius);
+			}
+
+			/* TV button styles */
+			.tv-grid-button {
+				padding: 0;
+				margin: 0;
+				font-size: 0.9rem;
+				max-width: 4rem;
+				aspect-ratio: 1/1;
+			}
+			
+			.tv-additional-button {
+				padding: 0.3rem 0.5rem;
+				max-width: 5rem;
+				font-size: 0.9rem;
+			}
+		</style>
+	</head>
+	<body>
+		<div
+			style="display: flex; flex-direction: column; align-items: center; margin-bottom: 2rem"
+		>
+			<h1>Aboba Relay Panel</h1>
+<!--			<img
+				src="https://cdn.7tv.app/emote/01HAZ9VXPG0005HE0A9M4Z1YQ6/4x.avif"
+				alt="Aboba Logo"
+				style="height: 2.2rem"
+			/>
+-->
+			<button
+				id="buzzBtn"
+				class=""
+				style="margin-top: 0.6rem; width: 10rem; text-transform: none"
+			>
+				⚡ BUZZ ⚡
+			</button>
+		</div>
+		<div id="relays"></div>
+
+		<div id="tv" class="devices-box" style="margin-top: 1.5rem">
+			<div style="text-align: center; margin-bottom: 0.5rem">📺 TV Controls</div>
+			<div style="display: flex; flex-direction: column; align-items: center">
+				<div
+					style="
+						display: grid;
+						grid-template-columns: repeat(4, 1fr);
+						grid-auto-rows: 1fr;
+						max-width: 300px;
+						gap: 0px;
+					"
+				>
+					<button id="tvInputSource" class="tv-grid-button">📡 Input</button>
+					<button id="tvDpadUp" class="tv-grid-button">▲</button>
+					<button id="tvSettings" class="tv-grid-button">⚙</button>
+					<button id="tvVolUp" class="tv-grid-button">🔊</button>
+
+					<button id="tvDpadLeft" class="tv-grid-button">◀</button>
+					<button id="tvDpadCenter" class="tv-grid-button">⊙ OK</button>
+					<button id="tvDpadRight" class="tv-grid-button">▶</button>
+					<button id="tvSpeakerMute" class="tv-grid-button">🔈</button>
+
+					<button id="tvBack" class="tv-grid-button">👈🏾</button>
+					<button id="tvDpadDown" class="tv-grid-button">▼</button>
+					<button id="tvHome" class="tv-grid-button">🏠</button>
+					<button id="tvVolDown" class="tv-grid-button">🔉</button>
+				</div>
+				<div style="display: flex">
+					<button id="tvPower" class="tv-additional-button">⏻ PWR</button>
+					<button id="tvFavourite" class="tv-additional-button">💚 Fav</button>
+					<button id="tvMicMute" class="tv-additional-button">🎤</button>
+					<button id="tvMenu" class="tv-additional-button">☰</button>
+					<button id="tvPlayPause" class="tv-additional-button">⏯</button>
+					<button id="tvPrev" class="tv-additional-button">⏮</button>
+					<button id="tvNext" class="tv-additional-button">⏭</button>
+					<button id="tvStop" class="tv-additional-button">⏹</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Devices/status box -->
+		<div id="devices" class="devices-box">
+			<div style="text-align: center; margin-bottom: 0.3rem">Devices</div>
+			<div id="devicesList"></div>
+		</div>
+
+		<!-- hotkeys footer (same style box on the bottom) -->
+		<div class="footer-box">Keyboard shortcuts: 0 (buzz), 1, 2, 3, 4, 5, 6, 7, 8</div>
+		<script>
+			// ASCII art constants
+			const ASCII_TOP = "┌" + "─".repeat(22) + "┐";
+			const ASCII_MID = "├" + "─".repeat(22) + "┤";
+			const ASCII_BOTTOM = "└" + "─".repeat(22) + "┘";
+			const TERM_FILLED = "⦿"; // bigger filled dot
+			const TERM_EMPTY = "◦"; // smaller hollow circle
+			const CIRCUIT_CLOSED_BODY = "__________";
+			const CIRCUIT_OPEN_BODY = "____/ ____";
+			document.addEventListener("DOMContentLoaded", async () => {
+				const relaysContainer = document.getElementById("relays");
+				if (!relaysContainer) return;
+
+				// buzzer button hookup
+				const buzzBtn = document.getElementById("buzzBtn");
+
+				// reusable buzzer function (used by button click and keyboard)
+				async function buzzDoor() {
+					// If button exists and is already disabled, ignore duplicate calls
+					if (buzzBtn && buzzBtn.disabled) return;
+					try {
+						if (buzzBtn) {
+							buzzBtn.disabled = true;
+							const prevText = buzzBtn.textContent;
+							buzzBtn.textContent = "BUZZED";
+							// send buzz request
+							await fetch("/door/buzz");
+							// restore after short delay
+							setTimeout(() => {
+								buzzBtn.textContent = prevText || "BUZZ";
+								buzzBtn.disabled = false;
+							}, 1000);
+						} else {
+							// button not present — still attempt to buzz
+							await fetch("/door/buzz");
+						}
+					} catch (e) {
+						console.error("Failed to buzz door", e);
+						if (buzzBtn) buzzBtn.disabled = false;
+					}
+				}
+
+				if (buzzBtn) {
+					// apply existing button styles and wire click
+					buzzBtn.className = "off";
+					buzzBtn.onclick = () => buzzDoor();
+				}
+
+				const buttons = [];
+				const labelDivs = [];
+				const circuitIndicators = [];
+				const relayTitles = [];
+
+				// devices list container
+				const devicesList = document.getElementById("devicesList");
+
+				// TV controls elements
+				const tvBtns = {
+					volUp: document.getElementById("tvVolUp"),
+					volDown: document.getElementById("tvVolDown"),
+					power: document.getElementById("tvPower"),
+					home: document.getElementById("tvHome"),
+					back: document.getElementById("tvBack"),
+					micMute: document.getElementById("tvMicMute"),
+					speakerMute: document.getElementById("tvSpeakerMute"),
+					playPause: document.getElementById("tvPlayPause"),
+					next: document.getElementById("tvNext"),
+					prev: document.getElementById("tvPrev"),
+					stop: document.getElementById("tvStop"),
+					dpadUp: document.getElementById("tvDpadUp"),
+					dpadDown: document.getElementById("tvDpadDown"),
+					dpadLeft: document.getElementById("tvDpadLeft"),
+					dpadRight: document.getElementById("tvDpadRight"),
+					dpadCenter: document.getElementById("tvDpadCenter"),
+					menu: document.getElementById("tvMenu"),
+					settings: document.getElementById("tvSettings"),
+					inputSource: document.getElementById("tvInputSource"),
+					favourite: document.getElementById("tvFavourite"),
+				};
+
+				// helper to call TV endpoint with simple UI feedback
+				async function callTv(path, btn) {
+					let prevText;
+					if (btn) {
+						prevText = btn.textContent;
+						btn.disabled = true;
+						btn.textContent = "...";
+					}
+					try {
+						await fetch(path);
+					} catch (e) {
+						console.error("TV action failed", path, e);
+					} finally {
+						if (btn) {
+							setTimeout(() => {
+								btn.textContent = prevText || "";
+								btn.disabled = false;
+							}, 400);
+						}
+					}
+				}
+
+				// wire TV buttons
+				if (tvBtns.volUp)
+					tvBtns.volUp.onclick = () => callTv("/tv/volume_up", tvBtns.volUp);
+				if (tvBtns.volDown)
+					tvBtns.volDown.onclick = () => callTv("/tv/volume_down", tvBtns.volDown);
+				if (tvBtns.power) tvBtns.power.onclick = () => callTv("/tv/power", tvBtns.power);
+				if (tvBtns.home) tvBtns.home.onclick = () => callTv("/tv/home", tvBtns.home);
+				if (tvBtns.back) tvBtns.back.onclick = () => callTv("/tv/back", tvBtns.back);
+				if (tvBtns.micMute)
+					tvBtns.micMute.onclick = () => callTv("/tv/mic_mute", tvBtns.micMute);
+				if (tvBtns.speakerMute)
+					tvBtns.speakerMute.onclick = () =>
+						callTv("/tv/speaker_mute", tvBtns.speakerMute);
+				if (tvBtns.playPause)
+					tvBtns.playPause.onclick = () =>
+						callTv("/tv/media_play_pause", tvBtns.playPause);
+				if (tvBtns.next) tvBtns.next.onclick = () => callTv("/tv/media_next", tvBtns.next);
+				if (tvBtns.prev) tvBtns.prev.onclick = () => callTv("/tv/media_prev", tvBtns.prev);
+				if (tvBtns.stop) tvBtns.stop.onclick = () => callTv("/tv/media_stop", tvBtns.stop);
+				if (tvBtns.dpadUp)
+					tvBtns.dpadUp.onclick = () => callTv("/tv/dpad_up", tvBtns.dpadUp);
+				if (tvBtns.dpadDown)
+					tvBtns.dpadDown.onclick = () => callTv("/tv/dpad_down", tvBtns.dpadDown);
+				if (tvBtns.dpadLeft)
+					tvBtns.dpadLeft.onclick = () => callTv("/tv/dpad_left", tvBtns.dpadLeft);
+				if (tvBtns.dpadRight)
+					tvBtns.dpadRight.onclick = () => callTv("/tv/dpad_right", tvBtns.dpadRight);
+				if (tvBtns.dpadCenter)
+					tvBtns.dpadCenter.onclick = () => callTv("/tv/dpad_center", tvBtns.dpadCenter);
+				if (tvBtns.menu) tvBtns.menu.onclick = () => callTv("/tv/menu", tvBtns.menu);
+				if (tvBtns.settings)
+					tvBtns.settings.onclick = () => callTv("/tv/settings", tvBtns.settings);
+				if (tvBtns.inputSource)
+					tvBtns.inputSource.onclick = () =>
+						callTv("/tv/input_source", tvBtns.inputSource);
+				if (tvBtns.favourite)
+					tvBtns.favourite.onclick = () => callTv("/tv/favourite", tvBtns.favourite);
+
+				// Remove localStorage logic
+				let relayData = Array.from({ length: 8 }, () => ({ label: "", state: false }));
+
+				// create buttons and editable labels
+				for (let i = 1; i <= 8; i++) {
+					const div = document.createElement("div");
+					div.className = "relay";
+
+					const contentCol = document.createElement("div");
+					contentCol.className = "relay-contents";
+
+					const asciiTop = document.createElement("div");
+					asciiTop.className = "relay-ascii-top";
+					asciiTop.textContent = ASCII_TOP;
+					contentCol.appendChild(asciiTop);
+
+					const titleRow = document.createElement("div");
+					titleRow.className = "relay-title-row";
+					titleRow.style.alignItems = "center";
+					titleRow.style.width = "100%";
+					titleRow.style.justifyContent = "center";
+					titleRow.style.textAlign = "center";
+
+					const titleDiv = document.createElement("div");
+					titleDiv.className = "relay-title";
+					// Title shows the user-set label (if any); fallback to "Relay N"
+					titleDiv.textContent = relayData[i - 1].label || `Relay ${i}`;
+					titleDiv.style.cursor = "pointer";
+					titleDiv.style.width = "100%";
+					titleDiv.style.textAlign = "center";
+
+					// Editable label logic
+					titleDiv.onclick = () => {
+						const input = document.createElement("input");
+						input.type = "text";
+						// populate input with the current title (label)
+						input.value = relayData[i - 1].label || "";
+						input.className = "relay-title";
+						input.style.width = "90%";
+						input.style.fontSize = "1rem";
+						input.style.fontFamily = "inherit";
+						input.style.textAlign = "center";
+						titleDiv.replaceWith(input);
+						input.focus();
+
+						async function finishEdit() {
+							const newLabel = input.value.trim();
+							try {
+								await fetch(`/relay/setLabel/${i}`, {
+									method: "POST",
+									headers: { "Content-Type": "application/json" },
+									body: JSON.stringify({ label: newLabel }),
+								});
+								// update in-memory and update the title element (not the subtitle)
+								relayData[i - 1].label = newLabel;
+								titleDiv.textContent = newLabel || `Relay ${i}`;
+								input.replaceWith(titleDiv);
+							} catch (e) {
+								console.error("Failed to set label", e);
+								input.replaceWith(titleDiv);
+							}
+						}
+						input.onblur = finishEdit;
+						input.onkeydown = (e) => {
+							if (e.key === "Enter") {
+								input.blur();
+							} else if (e.key === "Escape") {
+								input.value = relayData[i - 1].label || "";
+								input.blur();
+							}
+						};
+					};
+
+					titleRow.appendChild(titleDiv);
+
+					const labelDiv = document.createElement("div");
+					labelDiv.className = "relay-label";
+					// subtitle should show the fixed "Relay N"
+					labelDiv.textContent = `Relay ${i}`;
+					labelDiv.style.opacity = "0.85";
+					labelDiv.style.width = "100%";
+					labelDiv.style.textAlign = "center";
+					titleRow.appendChild(labelDiv);
+
+					contentCol.appendChild(titleRow);
+
+					// ASCII border below relay name
+					const asciiMid = document.createElement("div");
+					asciiMid.className = "relay-ascii-top";
+					asciiMid.textContent = ASCII_MID;
+					contentCol.appendChild(asciiMid);
+
+					const button = document.createElement("button");
+					button.textContent = "OFF";
+					button.className = "off";
+					button.style.width = "100%";
+					contentCol.appendChild(button);
+
+					// ASCII circuit indicator below button
+					const circuitDiv = document.createElement("div");
+					circuitDiv.className = "relay-circuit-indicator";
+					circuitDiv.innerHTML = `<span style="color:#888">${TERM_EMPTY}${CIRCUIT_OPEN_BODY}${TERM_EMPTY}</span>`;
+					contentCol.appendChild(circuitDiv);
+
+					// ASCII bottom border (centered)
+					const asciiBottom = document.createElement("div");
+					asciiBottom.className = "relay-ascii-bottom";
+					asciiBottom.textContent = ASCII_BOTTOM;
+					contentCol.appendChild(asciiBottom);
+
+					div.appendChild(contentCol);
+
+					relaysContainer.appendChild(div);
+
+					buttons.push(button);
+					labelDivs.push(labelDiv);
+					circuitIndicators.push(circuitDiv);
+					relayTitles.push(titleDiv);
+
+					// attach toggle handler
+					button.onclick = async () => {
+						try {
+							await fetch(`/relay/${i}`);
+							// setTimeout(updateStates, 500); // deprecated: old /relay/states
+							setTimeout(updateFromStatus, 500);
+						} catch (e) {
+							console.error("Failed to toggle relay", e);
+						}
+					};
+				}
+
+				// Render devices helper
+				function renderDevices(devices) {
+					if (!devicesList) return;
+					devicesList.innerHTML = "";
+					devices.forEach((d) => {
+						const row = document.createElement("div");
+						row.className = "device-row";
+
+						const name = document.createElement("div");
+						name.className = "device-name";
+						name.textContent = d.name || "";
+
+						const state = document.createElement("div");
+						state.className = "device-state";
+						const s = (d.state || "").toString();
+						const low = s.toLowerCase();
+						let color = "#aaa";
+						if (["on", "online", "ready", "ok", "connected"].includes(low))
+							color = "#00ff00";
+						else if (
+							["off", "offline", "error", "disconnected", "fault", "fail"].includes(
+								low
+							)
+						)
+							color = "#ff2222";
+						state.style.color = color;
+						state.textContent = s;
+
+						row.appendChild(name);
+						row.appendChild(state);
+						devicesList.appendChild(row);
+					});
+				}
+
+				/* Deprecated: old endpoint
+				async function updateStates() {
+					try {
+						const res = await fetch("/relay/states");
+						const states = await res.json();
+						relayData = states;
+						// ...existing code updating buttons/titles...
+					} catch (e) {
+						console.error("Failed to fetch relay states", e);
+					}
+				}
+				*/
+
+				// New: fetch from /status and update relays + devices
+				async function updateFromStatus() {
+					try {
+						const res = await fetch("/status");
+						const report = await res.json();
+
+						const states = report.relays || [];
+						relayData = states;
+
+						buttons.forEach((btn, i) => {
+							const relay = states[i] || {};
+							if (relay.state) {
+								btn.textContent = "ON";
+								btn.className = "on";
+								circuitIndicators[
+									i
+								].innerHTML = `<span style="color:#00ff00">${TERM_FILLED}${CIRCUIT_CLOSED_BODY}${TERM_FILLED}</span>`;
+							} else {
+								btn.textContent = "OFF";
+								btn.className = "off";
+								circuitIndicators[
+									i
+								].innerHTML = `<span style="color:#00ff00">${TERM_FILLED}____/</span><span style="color:#888"> ____${TERM_EMPTY}</span>`;
+							}
+							relayTitles[i].textContent = relay.label || `Relay ${i + 1}`;
+							labelDivs[i].textContent = `Relay ${i + 1}`;
+							labelDivs[i].style.opacity = "0.85";
+						});
+
+						// Update devices box
+						renderDevices(report.devices || []);
+					} catch (e) {
+						console.error("Failed to fetch status", e);
+					}
+				}
+
+				// Initial refresh (new)
+				// updateStates(); // deprecated: old /relay/states
+				updateFromStatus();
+
+				// Periodic refresh to keep UI fresh
+				setInterval(updateFromStatus, 2500);
+
+				// Add key press handler for 1-8 to toggle relays (and 0 to buzz)
+				document.addEventListener("keydown", async (e) => {
+					// Ignore if input is focused
+					if (
+						document.activeElement &&
+						(document.activeElement.tagName === "INPUT" ||
+							document.activeElement.tagName === "TEXTAREA")
+					)
+						return;
+					const key = e.key;
+					// 0 key => buzz door
+					if (key === "0") {
+						try {
+							await buzzDoor();
+						} catch (err) {
+							console.error("Failed to buzz via keypress", err);
+						}
+						return;
+					}
+					if (key >= "1" && key <= "8") {
+						const relayNum = Number(key);
+						try {
+							await fetch(`/relay/${relayNum}`);
+							// setTimeout(updateStates, 500); // deprecated: old /relay/states
+							setTimeout(updateFromStatus, 500);
+						} catch (err) {
+							console.error("Failed to toggle relay via keypress", err);
+						}
+					}
+				});
+			});
+		</script>
+	</body>
+</html>

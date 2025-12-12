@@ -1,0 +1,1 @@
+arduino-cli upload -p 192.168.1.152 -b esp32:esp32:esp32doit-devkit-v1 --upload-field password=PASSWORD_HERE . 

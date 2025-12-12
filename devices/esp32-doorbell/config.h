@@ -1,0 +1,7 @@
+#pragma once
+
+#define WIFI_SSID "WIFI_NAME_HERE"
+#define WIFI_PASSWORD "PASSWORD_HERE"
+
+#define OTA_HOSTNAME "esp32-2"
+#define OTA_PASSWORD "PASSWORD_HERE"

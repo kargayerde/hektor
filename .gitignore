@@ -1,0 +1,46 @@
+# Go build artifacts
+/server/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go module/tool caches (keep go.sum, ignore local cache)
+vendor/
+/server/.cache/
+/server/.tmp/
+
+# Arduino / PlatformIO / build artifacts
+**/build/
+/build/
+/*.elf
+/*.bin
+*.hex
+*.eep
+
+# VS Code / editor settings
+.vscode/
+.history/
+*.code-workspace
+
+# OS-specific junk
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Node / frontend caches (if added later)
+node_modules/
+dist/
+.cache/
+
+*.jpg
