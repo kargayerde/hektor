@@ -231,7 +231,7 @@ func Run() error {
 	api := &router.API{Devices: deviceManager, ADB: adbClient}
 	r := router.Router(api)
 
-	addr := ":80"
+	addr := ":42069"
 	slog.Info("server listening", "addr", addr, "mode", modeStr)
 	if err := http.ListenAndServe(addr, r); err != nil {
 		slog.Error("http server error", "err", err)
