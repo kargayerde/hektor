@@ -394,6 +394,10 @@
 			const TERM_EMPTY = "◦"; // smaller hollow circle
 			const CIRCUIT_CLOSED_BODY = "__________";
 			const CIRCUIT_OPEN_BODY = "____/ ____";
+
+			// Base URL for all API calls
+			const API_BASE_URL = window.location;
+
 			document.addEventListener("DOMContentLoaded", async () => {
 				const relaysContainer = document.getElementById("relays");
 				if (!relaysContainer) return;
@@ -411,7 +415,7 @@
 							const prevText = buzzBtn.textContent;
 							buzzBtn.textContent = "BUZZED";
 							// send buzz request
-							await fetch("/door/buzz");
+							await fetch(API_BASE_URL + "/door/buzz");
 							// restore after short delay
 							setTimeout(() => {
 								buzzBtn.textContent = prevText || "BUZZ";
@@ -419,7 +423,7 @@
 							}, 1000);
 						} else {
 							// button not present — still attempt to buzz
-							await fetch("/door/buzz");
+							await fetch(API_BASE_URL + "/door/buzz");
 						}
 					} catch (e) {
 						console.error("Failed to buzz door", e);
@@ -474,7 +478,7 @@
 						btn.textContent = "...";
 					}
 					try {
-						await fetch(path);
+						await fetch(API_BASE_URL + path);
 					} catch (e) {
 						console.error("TV action failed", path, e);
 					} finally {
@@ -573,7 +577,7 @@
 						async function finishEdit() {
 							const newLabel = input.value.trim();
 							try {
-								await fetch(`/relay/setLabel/${i}`, {
+								await fetch(API_BASE_URL + `/relay/setLabel/${i}`, {
 									method: "POST",
 									headers: { "Content-Type": "application/json" },
 									body: JSON.stringify({ label: newLabel }),
@@ -647,7 +651,7 @@
 					// attach toggle handler
 					button.onclick = async () => {
 						try {
-							await fetch(`/relay/${i}`);
+							await fetch(API_BASE_URL + `/relay/${i}`);
 							// setTimeout(updateStates, 500); // deprecated: old /relay/states
 							setTimeout(updateFromStatus, 500);
 						} catch (e) {
@@ -693,7 +697,7 @@
 				/* Deprecated: old endpoint
 				async function updateStates() {
 					try {
-						const res = await fetch("/relay/states");
+						const res = await fetch(BASE_URL + "/relay/states");
 						const states = await res.json();
 						relayData = states;
 						// ...existing code updating buttons/titles...
@@ -706,7 +710,7 @@
 				// New: fetch from /status and update relays + devices
 				async function updateFromStatus() {
 					try {
-						const res = await fetch("/status");
+						const res = await fetch(API_BASE_URL + "/status");
 						const report = await res.json();
 
 						const states = report.relays || [];
@@ -768,7 +772,7 @@
 					if (key >= "1" && key <= "8") {
 						const relayNum = Number(key);
 						try {
-							await fetch(`/relay/${relayNum}`);
+							await fetch(API_BASE_URL + `/relay/${relayNum}`);
 							// setTimeout(updateStates, 500); // deprecated: old /relay/states
 							setTimeout(updateFromStatus, 500);
 						} catch (err) {
