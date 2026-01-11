@@ -3,6 +3,8 @@ package router
 import (
 	"encoding/json"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -237,7 +239,11 @@ func Router(a *API) http.Handler {
 	r.Get("/tv/input_source", a.tvInputSourceHandler)
 	r.Get("/tv/favourite", a.tvFavouriteHandler)
 
-	r.Handle("/", http.FileServer(http.Dir("./static")))
+	exePath, _ := os.Executable()
+	exeDir := filepath.Dir(exePath)
+	staticDir := filepath.Join(exeDir, "static")
+
+	r.Handle("/", http.FileServer(http.Dir(staticDir)))
 	return r
 }
 
