@@ -10,7 +10,7 @@ import (
 const (
 	DefaultHost = "192.168.1.11"
 	// DefaultPort = "41979"
-	DefaultPort = "36275"
+	DefaultPort = "33893"
 )
 
 // Key codes (subset used by the app).
