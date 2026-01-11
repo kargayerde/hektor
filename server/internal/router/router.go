@@ -241,7 +241,7 @@ func Router(a *API) http.Handler {
 
 	exePath, _ := os.Executable()
 	exeDir := filepath.Dir(exePath)
-	staticDir := filepath.Join(exeDir, "static")
+	staticDir := filepath.Clean(filepath.Join(exeDir, "..", "static"))
 
 	r.Handle("/", http.FileServer(http.Dir(staticDir)))
 	return r
